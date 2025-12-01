@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm run compile)",
+      "Bash(pnpm run lint)",
+      "Bash(npx tsc --noEmit)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

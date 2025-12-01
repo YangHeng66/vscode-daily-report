@@ -1,0 +1,117 @@
+{
+  "name": "vscode-daily-report",
+  "displayName": "Daily Report Generator",
+  "description": "Generate daily/weekly reports from Git and SVN commit history using AI",
+  "version": "0.0.1",
+  "publisher": "your-name",
+  "engines": {
+    "vscode": "^1.84.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "dailyReport.generateDaily",
+        "title": "Generate Daily Report",
+        "category": "Daily Report"
+      },
+      {
+        "command": "dailyReport.generateWeekly",
+        "title": "Generate Weekly Report",
+        "category": "Daily Report"
+      },
+      {
+        "command": "dailyReport.generateCustom",
+        "title": "Generate Custom Range Report",
+        "category": "Daily Report"
+      },
+      {
+        "command": "dailyReport.configure",
+        "title": "Configure Settings",
+        "category": "Daily Report"
+      }
+    ],
+    "configuration": {
+      "title": "Daily Report Generator",
+      "properties": {
+        "dailyReport.aiProvider": {
+          "type": "string",
+          "default": "deepseek",
+          "enum": [
+            "deepseek",
+            "openai",
+            "anthropic"
+          ],
+          "enumDescriptions": [
+            "DeepSeek - 国产大模型，性价比高",
+            "OpenAI - GPT系列模型",
+            "Anthropic - Claude系列模型"
+          ],
+          "description": "AI provider for generating summaries"
+        },
+        "dailyReport.aiApiKey": {
+          "type": "string",
+          "default": "sk-99d2e7a03c3f460882a7ee0f4d307e16",
+          "description": "API key for the AI provider"
+        },
+        "dailyReport.aiModel": {
+          "type": "string",
+          "default": "deepseek-chat",
+          "description": "AI model to use (deepseek-chat, gpt-4o-mini, claude-3-haiku, etc.)"
+        },
+        "dailyReport.outputDirectory": {
+          "type": "string",
+          "default": "./reports",
+          "description": "Directory to save generated reports"
+        },
+        "dailyReport.authorFilter": {
+          "type": "string",
+          "default": "",
+          "description": "Filter commits by author (email or name). Leave empty for all authors"
+        },
+        "dailyReport.vcsType": {
+          "type": "string",
+          "default": "auto",
+          "enum": [
+            "auto",
+            "git",
+            "svn"
+          ],
+          "description": "Version control system type (auto-detect by default)"
+        },
+        "dailyReport.language": {
+          "type": "string",
+          "default": "zh-CN",
+          "enum": [
+            "zh-CN",
+            "en"
+          ],
+          "description": "Language for generated reports"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
+    "watch": "npm run compile -- --watch",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.84.0",
+    "esbuild": "^0.19.8",
+    "eslint": "^8.54.0",
+    "typescript": "^5.3.2"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.10",
+    "openai": "^4.24.0",
+    "simple-git": "^3.22.0"
+  },
+  "packageManager": "pnpm@10.14.0+sha512.ad27a79641b49c3e481a16a805baa71817a04bbe06a38d17e60e2eaee83f6a146c6a688125f5792e48dd5ba30e7da52a5cda4c3992b9ccf333f9ce223af84748"
+}
