@@ -1,13 +1,13 @@
 # Daily Report Generator
 
-一个VSCode插件，用于从Git/SVN提交记录自动生成工作日报和周报。
+一个 VSCode 插件，用于从 Git/SVN 提交记录自动生成工作日报和周报。
 
 ## 功能特性
 
-- **多版本控制支持**: 支持Git和SVN仓库
-- **智能AI总结**: 使用OpenAI或Anthropic API智能总结工作内容
+- **多版本控制支持**: 支持 Git 和 SVN 仓库
+- **智能 AI 总结**: 支持使用 OpenAI、Claude 或 DeepSeek API 智能总结工作内容
 - **灵活的日期范围**: 支持日报、周报和自定义日期范围
-- **Markdown输出**: 生成结构化的Markdown报告文件
+- **Markdown 输出**: 生成结构化的 Markdown 报告文件
 - **多语言支持**: 支持中文和英文报告
 
 ## 安装
@@ -20,14 +20,14 @@ npm install
 npm run compile
 ```
 
-然后在VSCode中按 `F5` 启动调试，或者打包安装：
+然后在 VSCode 中按 `F5` 启动调试，或者打包安装：
 
 ```bash
 npm install -g @vscode/vsce
 vsce package
 ```
 
-生成的 `.vsix` 文件可以通过VSCode的"从VSIX安装"功能安装。
+生成的 `.vsix` 文件可以通过 VSCode 的"从 VSIX 安装"功能安装。
 
 ## 使用方法
 
@@ -40,17 +40,17 @@ vsce package
 
 ## 配置项
 
-在VSCode设置中搜索 `dailyReport` 进行配置：
+在 VSCode 设置中搜索 `dailyReport` 进行配置：
 
-| 配置项 | 说明 | 默认值 |
-|--------|------|--------|
-| `dailyReport.aiProvider` | AI提供商 (openai/anthropic) | `openai` |
-| `dailyReport.aiApiKey` | AI API密钥 | - |
-| `dailyReport.aiModel` | AI模型名称 | `gpt-4o-mini` |
-| `dailyReport.outputDirectory` | 报告输出目录 | `./reports` |
-| `dailyReport.authorFilter` | 按作者过滤（邮箱或用户名） | - |
-| `dailyReport.vcsType` | 版本控制类型 (auto/git/svn) | `auto` |
-| `dailyReport.language` | 报告语言 (zh-CN/en) | `zh-CN` |
+| 配置项                        | 说明                         | 默认值        |
+| ----------------------------- | ---------------------------- | ------------- |
+| `dailyReport.aiProvider`      | AI 提供商 (openai/anthropic) | `openai`      |
+| `dailyReport.aiApiKey`        | AI API 密钥                  | -             |
+| `dailyReport.aiModel`         | AI 模型名称                  | `gpt-4o-mini` |
+| `dailyReport.outputDirectory` | 报告输出目录                 | `./reports`   |
+| `dailyReport.authorFilter`    | 按作者过滤（邮箱或用户名）   | -             |
+| `dailyReport.vcsType`         | 版本控制类型 (auto/git/svn)  | `auto`        |
+| `dailyReport.language`        | 报告语言 (zh-CN/en)          | `zh-CN`       |
 
 ## 示例配置
 
@@ -68,7 +68,7 @@ vsce package
 ## 生成的报告示例
 
 ```markdown
-# 工作日报 - 2024年01月15日
+# 工作日报 - 2024 年 01 月 15 日
 
 > 生成时间: 2024-01-15 18:00:00
 > 统计周期: 2024-01-15
@@ -77,35 +77,40 @@ vsce package
 ---
 
 ### 工作概述
-今日主要完成了用户认证模块的优化和Bug修复工作。
+
+今日主要完成了用户认证模块的优化和 Bug 修复工作。
 
 ### 完成事项
+
 - **功能开发**
+
   - 实现了用户登录状态持久化
   - 添加了记住密码功能
 
-- **Bug修复**
+- **Bug 修复**
   - 修复了登录超时问题
-  - 解决了Token刷新失败的问题
+  - 解决了 Token 刷新失败的问题
 
 ### 技术细节
-- 使用localStorage存储加密后的Token
-- 优化了Token刷新逻辑，避免并发请求问题
+
+- 使用 localStorage 存储加密后的 Token
+- 优化了 Token 刷新逻辑，避免并发请求问题
 
 ---
 
 ## 提交记录明细
 
-| 时间 | ID | 作者 | 提交信息 |
-|------|-----|------|----------|
+| 时间        | ID      | 作者 | 提交信息               |
+| ----------- | ------- | ---- | ---------------------- |
 | 01-15 17:30 | abc1234 | John | feat: 添加记住密码功能 |
-| 01-15 15:20 | def5678 | John | fix: 修复登录超时问题 |
+| 01-15 15:20 | def5678 | John | fix: 修复登录超时问题  |
+
 ...
 ```
 
-## 无AI模式
+## 无 AI 模式
 
-如果未配置AI API Key，插件会生成简单的提交记录汇总报告，不包含AI总结内容。
+如果未配置 AI API Key，插件会生成简单的提交记录汇总报告，不包含 AI 总结内容。
 
 ## 开发
 

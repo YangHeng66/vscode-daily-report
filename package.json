@@ -8,12 +8,26 @@
     "type": "git",
     "url": "https://github.com/YangHeng66/vscode-daily-report"
   },
+  "homepage": "https://github.com/YangHeng66/vscode-daily-report#readme",
+  "bugs": {
+    "url": "https://github.com/YangHeng66/vscode-daily-report/issues"
+  },
   "license": "MIT",
   "engines": {
     "vscode": "^1.84.0"
   },
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "daily report",
+    "weekly report",
+    "git",
+    "svn",
+    "ai",
+    "commit",
+    "工作日报",
+    "周报"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
