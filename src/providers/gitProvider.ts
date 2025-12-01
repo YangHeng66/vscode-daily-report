@@ -23,7 +23,7 @@ export class GitProvider implements IVCSProvider {
     const git: SimpleGit = simpleGit(workspacePath);
 
     const logOptions: Record<string, string | undefined> = {
-      '--since': formatDate(config.dateRange.start, 'YYYY-MM-DD'),
+      '--since': formatDate(config.dateRange.start, 'YYYY-MM-DD 00:00:00'),
       '--until': formatDate(config.dateRange.end, 'YYYY-MM-DD 23:59:59'),
     };
 

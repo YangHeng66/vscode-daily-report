@@ -3,7 +3,10 @@
     "allow": [
       "Bash(pnpm run compile)",
       "Bash(pnpm run lint)",
-      "Bash(npx tsc --noEmit)"
+      "Bash(npx tsc --noEmit)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://api.deepseek.com/v1/models)",
+      "Bash(curl -s -w \"\\nHTTP_CODE:%{http_code}\" \"https://api.deepseek.com/v1/models\" -H \"Authorization: Bearer sk-99d2e7a03c3f460882a7ee0f4d307e16\")",
+      "Bash(pnpm add -D @vscode/vsce)"
     ],
     "deny": [],
     "ask": []

@@ -172,7 +172,7 @@ Please output the report content directly without additional explanations.`;
   private async callDeepSeek(prompt: string): Promise<string> {
     const openai = new OpenAI({
       apiKey: this.apiKey,
-      baseURL: 'https://api.deepseek.com'
+      baseURL: 'https://api.deepseek.com/v1'
     });
 
     const response = await openai.chat.completions.create({
