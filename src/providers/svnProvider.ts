@@ -32,7 +32,10 @@ export class SvnProvider implements IVCSProvider {
 
   async getCommits(workspacePath: string, config: ReportConfig): Promise<CommitRecord[]> {
     const startDate = formatDate(config.dateRange.start, 'YYYY-MM-DD');
-    const endDate = formatDate(config.dateRange.end, 'YYYY-MM-DD');
+    // SVN 日期范围是左闭右开的，需要将结束日期加一天才能包含当天的提交
+    const endDatePlusOne = new Date(config.dateRange.end);
+    endDatePlusOne.setDate(endDatePlusOne.getDate() + 1);
+    const endDate = formatDate(endDatePlusOne, 'YYYY-MM-DD');
 
     // 构建svn log命令
     let command = `svn log -r {${startDate}}:{${endDate}} --xml`;
