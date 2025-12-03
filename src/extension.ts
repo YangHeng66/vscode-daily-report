@@ -5,6 +5,8 @@ import {
   generateCustomReport,
   openConfiguration
 } from './commands/generateReport';
+import { generateCommitMessage } from './commands/generateCommit';
+import { generateChangeSummary } from './commands/changeSummary';
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('Daily Report Generator is now active!');
@@ -14,7 +16,9 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('dailyReport.generateDaily', generateDailyReport),
     vscode.commands.registerCommand('dailyReport.generateWeekly', generateWeeklyReport),
     vscode.commands.registerCommand('dailyReport.generateCustom', generateCustomReport),
-    vscode.commands.registerCommand('dailyReport.configure', openConfiguration)
+    vscode.commands.registerCommand('dailyReport.configure', openConfiguration),
+    vscode.commands.registerCommand('dailyReport.generateCommit', generateCommitMessage),
+    vscode.commands.registerCommand('dailyReport.changeSummary', generateChangeSummary)
   ];
 
   context.subscriptions.push(...commands);

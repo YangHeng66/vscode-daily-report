@@ -2,7 +2,7 @@
   "name": "vscode-daily-report",
   "displayName": "Daily Report Generator",
   "description": "Generate daily/weekly reports from Git and SVN commit history using AI",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "publisher": "YangHeng66",
   "repository": {
     "type": "git",
@@ -52,8 +52,34 @@
         "command": "dailyReport.configure",
         "title": "Configure Settings",
         "category": "Daily Report"
+      },
+      {
+        "command": "dailyReport.generateCommit",
+        "title": "AI Commit Message 生成",
+        "category": "Daily Report",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "dailyReport.changeSummary",
+        "title": "AI变更总结",
+        "category": "Daily Report",
+        "icon": "$(book)"
       }
     ],
+    "menus": {
+      "scm/title": [
+        {
+          "command": "dailyReport.generateCommit",
+          "group": "navigation",
+          "when": "scmProvider == git"
+        },
+        {
+          "command": "dailyReport.changeSummary",
+          "group": "navigation",
+          "when": "scmProvider == git"
+        }
+      ]
+    },
     "configuration": {
       "title": "Daily Report Generator",
       "properties": {

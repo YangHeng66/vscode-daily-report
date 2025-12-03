@@ -189,4 +189,107 @@ Please output the report content directly without additional explanations.`;
 
     return response.choices[0]?.message?.content || '生成失败';
   }
+
+  /**
+   * 生成 commit message
+   */
+  async generateCommitMessage(diff: string): Promise<string> {
+    if (!this.apiKey) {
+      throw new Error('未配置AI API Key，请在设置中配置');
+    }
+
+    const prompt = this.buildCommitPrompt(diff);
+
+    switch (this.provider) {
+      case 'openai':
+        return this.callOpenAI(prompt);
+      case 'anthropic':
+        return this.callAnthropic(prompt);
+      case 'deepseek':
+        return this.callDeepSeek(prompt);
+      default:
+        throw new Error(`不支持的AI提供商: ${this.provider}`);
+    }
+  }
+
+  /**
+   * 构建 commit message 提示词
+   */
+  private buildCommitPrompt(diff: string): string {
+    const truncatedDiff = diff.length > 8000 ? diff.substring(0, 8000) + '\n...(truncated)' : diff;
+
+    return `根据以下代码变更生成一个简洁的 Git commit message。
+
+## 格式要求
+- 使用中文
+- 第一行：类型: 简短描述（不超过50字）
+- 类型包括：feat(新功能), fix(修复), docs(文档), style(格式), refactor(重构), test(测试), chore(构建/工具)
+- 如有必要，空一行后添加详细说明
+
+## 代码变更
+\`\`\`diff
+${truncatedDiff}
+\`\`\`
+
+## 输出
+直接输出 commit message，不要有其他解释。`;
+  }
+
+  /**
+   * 生成代码变更摘要
+   */
+  async generateChangeSummary(diff: string, commits: Array<{ hash: string; message: string }>): Promise<string> {
+    if (!this.apiKey) {
+      throw new Error('未配置AI API Key，请在设置中配置');
+    }
+
+    const prompt = this.buildChangeSummaryPrompt(diff, commits);
+
+    switch (this.provider) {
+      case 'openai':
+        return this.callOpenAI(prompt);
+      case 'anthropic':
+        return this.callAnthropic(prompt);
+      case 'deepseek':
+        return this.callDeepSeek(prompt);
+      default:
+        throw new Error(`不支持的AI提供商: ${this.provider}`);
+    }
+  }
+
+  /**
+   * 构建代码变更摘要提示词
+   */
+  private buildChangeSummaryPrompt(diff: string, commits: Array<{ hash: string; message: string }>): string {
+    const truncatedDiff = diff.length > 12000 ? diff.substring(0, 12000) + '\n...(truncated)' : diff;
+    const commitList = commits.map(c => `- [${c.hash}] ${c.message}`).join('\n');
+
+    return `作为代码审查专家，请分析以下代码变更并生成详细的变更摘要报告。
+
+## 提交记录
+${commitList}
+
+## 代码变更
+\`\`\`diff
+${truncatedDiff}
+\`\`\`
+
+## 输出格式（Markdown）
+### 变更概述
+（一段话总结本次变更的主要内容和目的）
+
+### 主要改动
+（按模块/功能分类列出主要改动点）
+
+### 技术细节
+（重要的实现细节、算法变更、架构调整等）
+
+### 潜在风险
+（可能存在的问题、边界情况、兼容性风险等，如无则写"暂无明显风险"）
+
+### 改进建议
+（代码质量、性能、可维护性等方面的建议，如无则写"暂无"）
+
+请直接输出报告内容。`;
+  }
 }
