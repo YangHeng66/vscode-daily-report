@@ -71,12 +71,12 @@
         {
           "command": "dailyReport.generateCommit",
           "group": "navigation",
-          "when": "scmProvider == git"
+          "when": "scmProvider == git || scmProvider == svn"
         },
         {
           "command": "dailyReport.changeSummary",
           "group": "navigation",
-          "when": "scmProvider == git"
+          "when": "scmProvider == git || scmProvider == svn"
         }
       ]
     },

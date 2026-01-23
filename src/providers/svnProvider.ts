@@ -127,4 +127,65 @@ export class SvnProvider implements IVCSProvider {
       return null;
     }
   }
+
+  /**
+   * 获取未提交变更的 diff
+   * SVN 没有 staged/unstaged 概念，所有本地修改都视为未暂存
+   */
+  async getDiff(workspacePath: string, _staged?: boolean): Promise<string> {
+    try {
+      const { stdout } = await execAsync('svn diff', { cwd: workspacePath });
+      return stdout;
+    } catch (error) {
+      console.error('Failed to get SVN diff:', error);
+      return '';
+    }
+  }
+
+  /**
+   * 获取最近 N 条提交的 diff
+   */
+  async getRecentDiff(workspacePath: string, count: number): Promise<string> {
+    try {
+      const { stdout: infoOut } = await execAsync('svn info --show-item revision', { cwd: workspacePath });
+      const headRev = parseInt(infoOut.trim());
+      const fromRev = Math.max(1, headRev - count);
+      const { stdout } = await execAsync(`svn diff -r ${fromRev}:${headRev}`, { cwd: workspacePath });
+      return stdout;
+    } catch (error) {
+      console.error('Failed to get SVN recent diff:', error);
+      return '';
+    }
+  }
+
+  /**
+   * 获取两个版本之间的 diff
+   */
+  async getRangeDiff(workspacePath: string, from: string, to: string): Promise<string> {
+    try {
+      const { stdout } = await execAsync(`svn diff -r ${from}:${to}`, { cwd: workspacePath });
+      return stdout;
+    } catch (error) {
+      console.error('Failed to get SVN range diff:', error);
+      return '';
+    }
+  }
+
+  /**
+   * 获取最近的提交列表（用于选择）
+   */
+  async getRecentCommitList(workspacePath: string, count: number = 20): Promise<Array<{ hash: string; message: string; date: string }>> {
+    try {
+      const { stdout } = await execAsync(`svn log -l ${count} --xml`, { cwd: workspacePath });
+      const entries = this.parseXmlLog(stdout);
+      return entries.map(e => ({
+        hash: e.revision,
+        message: e.msg.split('\n')[0].substring(0, 50),
+        date: e.date.substring(0, 10)
+      }));
+    } catch (error) {
+      console.error('Failed to get SVN commit list:', error);
+      return [];
+    }
+  }
 }

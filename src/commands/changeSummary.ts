@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { GitProvider } from '../providers/gitProvider';
+import { SvnProvider } from '../providers/svnProvider';
 import { AIService } from '../services/aiService';
 import type { AIProvider } from '../types';
 import { formatDate } from '../utils/dateUtils';
@@ -20,6 +21,20 @@ function getWorkspacePath(): string | undefined {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 }
 
+type VCSProvider = { type: 'git'; provider: GitProvider } | { type: 'svn'; provider: SvnProvider };
+
+async function detectVCS(workspacePath: string): Promise<VCSProvider | null> {
+  const gitProvider = new GitProvider();
+  if (await gitProvider.isRepository(workspacePath)) {
+    return { type: 'git', provider: gitProvider };
+  }
+  const svnProvider = new SvnProvider();
+  if (await svnProvider.isRepository(workspacePath)) {
+    return { type: 'svn', provider: svnProvider };
+  }
+  return null;
+}
+
 export async function generateChangeSummary(): Promise<void> {
   const workspacePath = getWorkspacePath();
   if (!workspacePath) {
@@ -27,9 +42,9 @@ export async function generateChangeSummary(): Promise<void> {
     return;
   }
 
-  const gitProvider = new GitProvider();
-  if (!(await gitProvider.isRepository(workspacePath))) {
-    vscode.window.showErrorMessage('当前目录不是 Git 仓库');
+  const vcs = await detectVCS(workspacePath);
+  if (!vcs) {
+    vscode.window.showErrorMessage('当前目录不是 Git 或 SVN 仓库');
     return;
   }
 
@@ -62,12 +77,12 @@ export async function generateChangeSummary(): Promise<void> {
     if (!countStr) return;
 
     const count = parseInt(countStr);
-    const commitList = await gitProvider.getRecentCommitList(workspacePath, count);
+    const commitList = await vcs.provider.getRecentCommitList(workspacePath, count);
     commits = commitList.map(c => ({ hash: c.hash, message: c.message }));
-    diff = await gitProvider.getRecentDiff(workspacePath, count);
+    diff = await vcs.provider.getRecentDiff(workspacePath, count);
   } else {
     // 获取提交列表供选择（按时间倒序，索引越小越新）
-    const commitList = await gitProvider.getRecentCommitList(workspacePath, 30);
+    const commitList = await vcs.provider.getRecentCommitList(workspacePath, 30);
     const items = commitList.map((c, idx) => ({
       label: c.hash,
       description: c.message,
@@ -88,7 +103,7 @@ export async function generateChangeSummary(): Promise<void> {
       ? [fromCommit, toCommit]
       : [toCommit, fromCommit];
 
-    diff = await gitProvider.getRangeDiff(workspacePath, older.label, newer.label);
+    diff = await vcs.provider.getRangeDiff(workspacePath, older.label, newer.label);
     commits = commitList.filter(c => c.hash === older.label || c.hash === newer.label)
       .map(c => ({ hash: c.hash, message: c.message }));
   }
