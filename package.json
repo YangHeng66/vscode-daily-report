@@ -2,7 +2,7 @@
   "name": "vscode-daily-report",
   "displayName": "Daily Report Generator",
   "description": "Generate daily/weekly reports from Git and SVN commit history using AI",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publisher": "YangHeng66",
   "icon": "src/image/icon.png",
   "repository": {
