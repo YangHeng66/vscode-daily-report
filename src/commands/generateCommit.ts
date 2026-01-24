@@ -89,36 +89,72 @@ export async function generateCommitMessage(): Promise<void> {
         const aiService = new AIService(config.aiProvider, config.aiApiKey, config.aiModel);
         const message = await aiService.generateCommitMessage(diff);
 
-        // 让用户编辑确认
-        const edited = await vscode.window.showInputBox({
-          prompt: '确认或编辑 Commit Message',
-          value: message,
-          valueSelection: [0, message.indexOf('\n') > 0 ? message.indexOf('\n') : message.length]
-        });
+        let filled = false;
 
-        if (edited) {
-          if (vcs.type === 'git') {
-            const gitExt = vscode.extensions.getExtension('vscode.git')?.exports;
-            const repo = gitExt?.getAPI(1)?.repositories?.[0];
-            if (repo) {
-              repo.inputBox.value = edited;
-              vscode.window.showInformationMessage('Commit Message 已填充到 Git 面板');
-              return;
-            }
-          } else {
-            const svnExt = vscode.extensions.getExtension('johnstoncode.svn-scm')?.exports;
-            if (svnExt) {
-              const repo = svnExt.getAPI?.(1)?.repositories?.[0];
-              if (repo?.inputBox) {
-                repo.inputBox.value = edited;
-                vscode.window.showInformationMessage('Commit Message 已填充到 SVN 面板');
-                return;
+        if (vcs.type === 'git') {
+          // Git: 直接填充到 Git 面板输入框，无需确认
+          try {
+            const gitExt = vscode.extensions.getExtension('vscode.git');
+            if (gitExt) {
+              const gitAPI = gitExt.exports?.getAPI?.(1);
+              if (gitAPI?.repositories?.[0]?.inputBox) {
+                gitAPI.repositories[0].inputBox.value = message;
+                vscode.window.showInformationMessage('Commit Message 已填充到 Git 面板');
+                filled = true;
               }
             }
+          } catch {
+            // 忽略错误，使用备用方案
           }
+
           // 备用：复制到剪贴板
-          await vscode.env.clipboard.writeText(edited);
-          vscode.window.showInformationMessage('Commit Message 已复制到剪贴板');
+          if (!filled) {
+            await vscode.env.clipboard.writeText(message);
+            vscode.window.showInformationMessage('Commit Message 已复制到剪贴板');
+          }
+        } else {
+          // SVN: 保持原有逻辑，让用户编辑确认
+          const edited = await vscode.window.showInputBox({
+            prompt: '确认或编辑 Commit Message',
+            value: message,
+            valueSelection: [0, message.indexOf('\n') > 0 ? message.indexOf('\n') : message.length]
+          });
+
+          if (edited) {
+            try {
+              // SVN: 尝试通过 SVN 扩展 API 设置 inputBox
+              const svnExt = vscode.extensions.getExtension('johnstoncode.svn-scm');
+              if (svnExt) {
+                if (!svnExt.isActive) {
+                  await svnExt.activate();
+                }
+                const svnAPI = svnExt.exports;
+                if (svnAPI) {
+                  const repo = svnAPI?.repositories?.[0]
+                    || svnAPI?.model?.repositories?.[0]
+                    || (typeof svnAPI?.getAPI === 'function' ? svnAPI.getAPI(1)?.repositories?.[0] : null);
+
+                  if (repo?.inputBox) {
+                    repo.inputBox.value = edited;
+                    vscode.window.showInformationMessage('Commit Message 已填充到 SVN 面板');
+                    filled = true;
+                  }
+                }
+              }
+
+              // SVN 扩展不暴露 API，复制到剪贴板并打开 SCM 视图
+              if (!filled) {
+                await vscode.env.clipboard.writeText(edited);
+                await vscode.commands.executeCommand('workbench.view.scm');
+                await vscode.commands.executeCommand('workbench.scm.focus');
+                vscode.window.showInformationMessage('Commit Message 已复制到剪贴板，请按 Cmd+V 粘贴');
+              }
+            } catch {
+              // 备用：复制到剪贴板
+              await vscode.env.clipboard.writeText(edited);
+              vscode.window.showInformationMessage('Commit Message 已复制到剪贴板');
+            }
+          }
         }
       } catch (error) {
         vscode.window.showErrorMessage(`生成失败: ${error}`);

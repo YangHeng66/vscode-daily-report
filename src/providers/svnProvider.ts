@@ -147,10 +147,20 @@ export class SvnProvider implements IVCSProvider {
    */
   async getRecentDiff(workspacePath: string, count: number): Promise<string> {
     try {
-      const { stdout: infoOut } = await execAsync('svn info --show-item revision', { cwd: workspacePath });
-      const headRev = parseInt(infoOut.trim());
-      const fromRev = Math.max(1, headRev - count);
-      const { stdout } = await execAsync(`svn diff -r ${fromRev}:${headRev}`, { cwd: workspacePath });
+      // 先获取最近 N 条提交的版本号列表
+      const { stdout: logOut } = await execAsync(`svn log -l ${count} --xml`, { cwd: workspacePath });
+      const entries = this.parseXmlLog(logOut);
+
+      if (entries.length === 0) {
+        return '';
+      }
+
+      // 获取最早和最新的版本号（entries 已经按时间倒序排列）
+      const newestRev = entries[0].revision.replace('r', '');
+      const oldestRev = entries[entries.length - 1].revision.replace('r', '');
+
+      // 获取这个范围的 diff
+      const { stdout } = await execAsync(`svn diff -r ${oldestRev}:${newestRev}`, { cwd: workspacePath });
       return stdout;
     } catch (error) {
       console.error('Failed to get SVN recent diff:', error);
